@@ -21,7 +21,7 @@ class Vimeo(vimeo.VimeoClient):
         data = {video_id: [] for video_id in videos_ids}
         for video_id in videos_ids:
             try:
-                response = self.get(settings.API_URL.format(video_id))
+                response = self.get(settings.API_URL.format(video_id), params={"fields": "sizes,active"}, timeout=10)
                 if response.status_code == 200:
                     picture_links = parse_response(video_id, response)
                     data[video_id] = picture_links
