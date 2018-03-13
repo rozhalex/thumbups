@@ -17,9 +17,12 @@ class Vimeo(vimeo.VimeoClient):
         self.links = 0
 
     def get_data(self, videos_ids):
-        logger.info("Got %s videos to proceed" % len(videos_ids))
+        if len(videos_ids) == len(set(videos_ids)):
+            logger.info("Got %s videos to proceed" % len(videos_ids))
+        else:
+            logger.info("Got %s videos to proceed. Only %s are unique" % (len(videos_ids), len(set(videos_ids))))
         data = {video_id: [] for video_id in videos_ids}
-        for video_id in videos_ids:
+        for video_id in set(videos_ids):
             try:
                 response = self.get(settings.API_URL.format(video_id), params={"fields": "sizes,active"}, timeout=10)
                 if response.status_code == 200:
@@ -30,7 +33,7 @@ class Vimeo(vimeo.VimeoClient):
                     logger.error("Failed to get thumbup's link for video_id=%s - %s" % (video_id, response.text))
             except Exception as e:
                 logger.error("Failed to get thumbup's link for video_id=%s - %s" % (video_id, e))
-        logger.info("Found thumbups for %s/%s videos" % (self.links, len(videos_ids)))
+        logger.info("Found thumbups for %s/%s videos" % (self.links, len(set(videos_ids))))
         return data
 
     def download_thumbups(self, data):
