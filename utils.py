@@ -23,7 +23,7 @@ def parse_response(video_id, response):
                 logger.info('Got thumbnails info about video %s' % video_id)
             return links
         except Exception as e:
-            logger.error('Exception while parsing response %s' % response)
+            logger.error('Exception while parsing response %s' % response.text)
 
 
 def get_filename(video_id, index):
