@@ -28,6 +28,8 @@ def parse_response(video_id, response):
 
 def get_filename(video_id, index):
     current_dir = os.getcwd()
+    if not os.path.exists(os.path.join(current_dir, 'downloads')):
+        os.makedirs(os.path.join(current_dir, 'downloads'))
     if settings.ACTIVE:
         file_name = '{}_default.jpg'.format(video_id)
     else:
@@ -42,7 +44,7 @@ def write_file(file_name, response):
                 file.write(chunk)
         logger.info('File %s is saved' % file_name)
     except Exception as e:
-        logger.error('Error while writing file %s' % file_name)
+        logger.error('Error while writing file %s - %s' % (file_name, e))
 
 
 def configure_logging():
