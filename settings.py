@@ -30,4 +30,4 @@ WIDTH = WIDTH_OPTIONS.get(WIDTH_VALUE, 640)
 
 # API
 
-API_URL = 'https://api.thumbups.com/videos/{}/pictures'
+API_URL = 'https://api.vimeo.com/videos/{}/pictures'
