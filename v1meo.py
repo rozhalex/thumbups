@@ -16,6 +16,16 @@ class Vimeo(vimeo.VimeoClient):
         self.files_saved = 0
         self.links = 0
 
+    def make_request(self, video_id, timeout=10):
+        if settings.TIME:
+            body = {
+                'active': settings.ACTIVE,
+                'time': settings.TIME
+            }
+            return self.post(settings.API_URL.format(video_id), data=body, timeout=timeout)
+        else:
+            return self.get(settings.API_URL.format(video_id), params={"fields": "sizes,active"}, timeout=timeout)
+
     def get_data(self, videos_ids):
         if len(videos_ids) == len(set(videos_ids)):
             logger.info("Got %s videos to proceed" % len(videos_ids))
@@ -24,11 +34,12 @@ class Vimeo(vimeo.VimeoClient):
         data = {video_id: [] for video_id in videos_ids}
         for video_id in set(videos_ids):
             try:
-                response = self.get(settings.API_URL.format(video_id), params={"fields": "sizes,active"}, timeout=10)
-                if response.status_code == 200:
+                response = self.make_request(video_id)
+                if response.status_code in (200, 201):
                     picture_links = parse_response(video_id, response)
                     data[video_id] = picture_links
-                    self.links += 1
+                    if picture_links:
+                        self.links += 1
                 else:
                     logger.error("Failed to get thumbup's link for video_id=%s - %s" % (video_id, response.text))
             except Exception as e:

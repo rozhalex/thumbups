@@ -7,24 +7,30 @@ logger = logging.getLogger(__name__)
 
 
 def parse_response(video_id, response):
-    if response.status_code == 200:
-        data = response.json()
-        try:
-            links = []
-            for picture in data['data']:
-                if picture['active'] == settings.ACTIVE:
-                    for size in picture['sizes']:
-                        if size['width'] == settings.WIDTH:
-                            link = size[settings.LINK_TYPE]
-                            links.append(link)
-            if len(links) == 0:
-                logger.warning('Thumbnails for %s with the following settings are not found: active - %s, width - %s'
-                               % (video_id, settings.ACTIVE, settings.WIDTH))
+    data = response.json()
+    if settings.TIME:
+        thumbnails = [data]
+    else:
+        thumbnails = data['data']
+    try:
+        links = []
+        for thumbnail in thumbnails:
+            if thumbnail['active'] == settings.ACTIVE:
+                for size in thumbnail['sizes']:
+                    if size['width'] == settings.WIDTH:
+                        link = size[settings.LINK_TYPE]
+                        links.append(link)
+        if len(links) == 0:
+            logger.warning('Thumbnails for %s with the following settings are not found: active - %s, width - %s'
+                           % (video_id, settings.ACTIVE, settings.WIDTH))
+        else:
+            if settings.TIME:
+                logger.info('Set new thumbnail for video %s' % video_id)
             else:
                 logger.info('Got thumbnails info about video %s' % video_id)
-            return links
-        except Exception as e:
-            logger.error('Exception while parsing response %s' % response.text)
+        return links
+    except Exception as e:
+        logger.error('Exception %s while parsing response %s' % (e, response.text))
 
 
 def get_filename(video_id, index):
@@ -32,9 +38,12 @@ def get_filename(video_id, index):
     if not os.path.exists(os.path.join(current_dir, 'downloads')):
         os.makedirs(os.path.join(current_dir, 'downloads'))
     if settings.ACTIVE:
-        file_name = '{}_default.jpg'.format(video_id)
+        if settings.TIME:
+            file_name = '{}_offset_{}.jpg'.format(video_id, settings.TIME)
+        else:
+            file_name = '{}_default.jpg'.format(video_id)
     else:
-        file_name = '{}_{}.jpg'.format(video_id, index)
+        file_name = '{}_inactive_{}.jpg'.format(video_id, index)
     return os.path.join(current_dir, 'downloads', file_name)
 
 
