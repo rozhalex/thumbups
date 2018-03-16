@@ -1,6 +1,7 @@
 import settings
 import logging
 import os
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -55,3 +56,12 @@ def configure_logging():
         datefmt='%H:%M:%S'
     )
     logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+
+def check_configuration():
+    if not hasattr(settings, 'ACTIVE'):
+        sys.exit("Your configuration file doesn't have ACTIVE parameter")
+    if not isinstance(settings.ACTIVE, bool):
+        sys.exit("ACTIVE must be boolean")
+    if getattr(settings, 'TIME', None) and not settings.ACTIVE:
+        sys.exit("Wrong configuration - ACTIVE=%s, TIME=%s" % (settings.ACTIVE, settings.TIME))

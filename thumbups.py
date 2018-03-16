@@ -1,8 +1,9 @@
-from utils import configure_logging
+from utils import configure_logging, check_configuration
 from v1meo import Vimeo
 import sys
 
 configure_logging()
+check_configuration()
 
 if len(sys.argv[1:]) > 0:
     video_ids = sys.argv[1:]
