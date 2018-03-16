@@ -22,9 +22,14 @@ class Vimeo(vimeo.VimeoClient):
                 'active': settings.ACTIVE,
                 'time': settings.TIME
             }
-            return self.post(settings.API_URL.format(video_id), data=body, timeout=timeout)
+            return self.post(settings.API_URL.format(video_id), data=body)
         else:
-            return self.get(settings.API_URL.format(video_id), params={"fields": "sizes,active"}, timeout=timeout)
+            return self.get(
+                settings.API_URL.format(video_id),
+                params={
+                    "fields": "sizes.width,sizes.{},active".format(settings.LINK_TYPE)
+                }
+            )
 
     def get_data(self, videos_ids):
         if len(videos_ids) == len(set(videos_ids)):
